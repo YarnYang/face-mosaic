@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>合照贴纸工具</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <h1>合照贴纸工具</h1>
+        
+        <div class="upload-section">
+            <div class="upload-item">
+                <label>上传照片：</label>
+                <input type="file" id="imageInput" accept="image/*" class="file-input">
+                <button id="uploadBtn">选择照片</button>
+            </div>
+            <div class="upload-item">
+                <label>选择贴纸：</label>
+                <input type="file" id="stickerInput" accept="image/png" class="file-input">
+                <button id="stickerBtn">选择贴纸</button>
+            </div>
+        </div>
+
+        <div class="preview-section">
+            <div class="selected-sticker">
+                <p>当前选择的贴纸：</p>
+                <img id="stickerPreview" style="display: none;">
+            </div>
+        </div>
+
+        <div class="canvas-section">
+            <canvas id="outputCanvas"></canvas>
+        </div>
+
+        <div class="action-buttons">
+            <button id="saveBtn">保存图片</button>
+        </div>
+    </div>
+
+    <!-- 先加载face-api.js -->
+    <script src="https://unpkg.com/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    
+    <!-- 添加初始化检查 -->
+    <script>
+        // 等待face-api.js加载完成
+        function waitForFaceAPI() {
+            return new Promise((resolve, reject) => {
+                if (typeof faceapi !== 'undefined') {
+                    console.log('face-api.js 已加载');
+                    resolve();
+                    return;
+                }
+
+                let attempts = 0;
+                const maxAttempts = 20;
+                
+                const check = () => {
+                    if (typeof faceapi !== 'undefined') {
+                        console.log('face-api.js 加载成功');
+                        resolve();
+                    } else if (attempts < maxAttempts) {
+                        attempts++;
+                        console.log(`等待face-api.js加载... ${attempts}/${maxAttempts}`);
+                        setTimeout(check, 500);
+                    } else {
+                        reject(new Error('face-api.js 加载失败'));
+                    }
+                };
+
+                check();
+            });
+        }
+
+        // 等待所有资源加载完成
+        window.onload = async () => {
+            try {
+                console.log('页面加载完成，等待face-api.js...');
+                await waitForFaceAPI();
+                console.log('所有依赖加载完成，开始初始化应用...');
+                
+                // 手动触发DOMContentLoaded事件
+                const event = new Event('DOMContentLoaded');
+                document.dispatchEvent(event);
+            } catch (error) {
+                console.error('初始化失败:', error);
+                if (confirm('初始化失败，是否重试？')) {
+                    location.reload();
+                }
+            }
+        };
+    </script>
+
+    <!-- 最后加载我们的应用代码 -->
+    <script src="script.js"></script>
+</body>
+</html> 
